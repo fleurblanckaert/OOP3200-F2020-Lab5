@@ -1,3 +1,13 @@
+/* Name: Fleur Blanckaert (100747083), Gabriel Dietrich (100764733)
+   Date: Oct 24 2020
+   Program: OOP 3200 - Lab 5 - Standard Template Library
+   Description: This page reads the the data of another file, count how many
+				points there are and the distance between them. Then, it prompts
+				the user to enter a specific point and it calculates the distance
+				between the first point until the point entered
+*/
+
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -22,6 +32,8 @@ int main()
 		std::map<std::string, Vector2D<float>*> vectorObj;
 		std::ifstream inClientFile;
 		const std::string fileName = "MockDataForTesting.txt";
+		std::string userInput;
+
 
 		/******************************************************************************
 		 *	Reading Labels/Points into the Map:
@@ -44,9 +56,14 @@ int main()
 			std::cerr << "File could not be opened for input. Please check if the file exists.\n";
 			std::cout << "---------------------------------\n";
 		}
+		else if (fileName.empty())
+		{
+			std::cout << "The map is empty. Check that the file contains valid data in the correct format\n";
+		}
 		else
 		{
-			int count = 0;
+
+			int count = -1; // IT IS COUNTING ONE EXTRA POINT. NOT RECOGNIZING WHEN FILE IS EMPTY.
 			std::string key;
 			int x, y;
 
@@ -64,8 +81,11 @@ int main()
 				inClientFile.ignore(1, ')');
 
 				count++;
-
 			}
+
+			// SORT ALL POINTS
+
+			// WHERE DOES THROW FOR EXCEPTION GO?
 
 			/******************************************************************************
 			 *	Determine the Total Distance Between All Points in Order:
@@ -83,30 +103,23 @@ int main()
 
 			auto distance = Vector2D<float>::Distance(*temp_object1, *temp_object2);
 
-			std::cout << "The map contains a total of " << count << " points for a total distance of " << std::to_string(distance) << std::endl;
+			float totalDistance = 0;
 
-			inClientFile.close(); 
+			//auto distance = vectorObj.begin();
 
-			//inClientFile.close();
-			/*if (vectorObj.empty())
+			// Calculate the total distance between and points
+			while (!inClientFile.fail())
 			{
-			std::cerr << "File is empty. Please check the file contains valid data and in the correct format\n";
-			std::cout << "---------------------------------\n";*/
-			//}
+				// HOW CAN WE CALL THE FIRST AND SECOND POINTS, CALCULATE THE DISTANCE AND MOVE TO THE FOLLOWING LINES AFTER THAT?
+
+
+				totalDistance += distance;
+			}
+
+			// Displays totals
+			std::cout << "The map contains a total of " << count << " points for a total distance of "
+				<< std::to_string(totalDistance) << std::endl << std::endl;
 		}
-
-
-
-		//// Used this part for testing purposes, gonna come out of file later
-		//char str[255];
-
-		//while(inClientFile)
-		//{
-		//	inClientFile.getline(str, 255);
-		//	if (inClientFile) std::cout << str << std::endl;
-		//}
-
-
 
 		/******************************************************************************
 		 *	Determine the Distance Between the Start Point and a User Selected Point:
@@ -118,7 +131,33 @@ int main()
 		 *	Repeat these steps until the user enters "quit".
 		 ******************************************************************************/
 
+		 // Ends application if user types quit
+		while (userInput != "quit")
+		{
+			std::cout << "Enter the label of the point you wish to go to ('quit' to end): ";
+			std::cin >> userInput;
 
+			auto it = vectorObj.find(userInput);
+
+			// If userInput is found in the map
+			if (it != vectorObj.end())
+			{
+				// Calculates distance between AA and userInput
+				auto distance = vectorObj.begin();
+
+
+				std::cout << "\n\tThe distance between AA (0,0) and " << userInput << " (" << it->first << ", " <<
+					it->second << ") is " << "[DISTANCE]" << std::endl << std::endl;
+			}
+			// If userInput is not found in the map
+			else
+			{
+				std::cout << "\n\tThere is no point labelled '" << userInput << "' in the map" << std::endl << std::endl;
+			}
+		}
+
+		// Closes file
+		inClientFile.close();
 
 	}
 	/******************************************************************************
@@ -126,17 +165,13 @@ int main()
 	 *	Catch any std::exception thrown. Report to the user that a run-time error
 	 *	occurred and show what exception was thrown.
 	 ******************************************************************************/
-	catch (...)  // an exception was thrown
+	catch (std::runtime_error& error)  // an exception was thrown
 	{
-		std::cerr << "\nException occurred: " << std::endl;
+		std::cerr << "\nAn error occurred at run time: map::at" << std::endl;
 		//return false;
 	}
 
 	// END-OF-PROGRAM
 
 	return 0;
-}
-
-void outputLine(int, int)
-{
 }
