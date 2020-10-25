@@ -85,7 +85,7 @@ int main()
 
 			std::cout << "The map contains a total of " << count << " points for a total distance of " << std::to_string(distance) << std::endl;
 
-			inClientFile.close();
+			inClientFile.close(); 
 
 			//inClientFile.close();
 			/*if (vectorObj.empty())
