@@ -14,6 +14,7 @@
 #include <map>
 #include "Vector2D.h"
 
+
 int main()
 {
 	try
@@ -21,10 +22,19 @@ int main()
 		/************************
 		 *	DECLARATIONS
 		 ************************/
+		int count = -1;
+		
+		float totalDistance = 0;
+		float x = 0;
+		float y = 0;
+		
+		
 		std::map<std::string, Vector2D<float>*> vectorObj;
 		std::ifstream inClientFile;
-		std::string fileName = "PointData.dat";
+		std::string fileName = "";
 		std::string userInput;
+		std::string key = "";
+		
 
 
 		/******************************************************************************
@@ -39,16 +49,14 @@ int main()
 		 *	map is not empty.
 		 ******************************************************************************/
 
-		int count = 0;
-		std::string key;
-		float x = 0;
-		float y = 0;
-		float totalDistance = 0;
-		inClientFile.open(fileName.c_str());
+		
 
+		inClientFile.open(fileName.c_str());
+		
 		//If the data file did not open, tell the user and remind them to check that the file exists.
 		if (!inClientFile.is_open())
 		{
+			throw;
 			std::cerr << "File could not be opened for input. Please check if the file exists.\n";
 			std::cout << "---------------------------------\n";
 		}
@@ -60,6 +68,8 @@ int main()
 			while (!inClientFile.fail())
 			{
 
+				
+				
 				inClientFile >> key;
 				inClientFile.ignore(1, ' ');
 				inClientFile.ignore(1, '(');
@@ -70,13 +80,16 @@ int main()
 				inClientFile.ignore(1, ')');
 				count++;
 
-				/* if the map is empty after the input loop, report that to
-				* the user and remind them to check that the file contains valid data in
-				* the correct format.*/
+				
 				auto* tempObj = new Vector2D<float>(x, y);
-
 				//Inserts points into the map using the label as the key.
 				vectorObj[key] = tempObj;
+					
+				
+				
+				
+					
+					
 
 		/******************************************************************************
 		 *	Determine the Total Distance Between All Points in Order:
@@ -90,12 +103,21 @@ int main()
 		 ******************************************************************************/
 				auto* tempObj1 = new Vector2D<float>(0, 0);
 
+
+
+				
+				auto distance = Vector2D<float>::Distance(*tempObj1, *tempObj);
+				totalDistance += distance;
+
 				
 
-				auto distance = Vector2D<float>::Distance( *tempObj1, * tempObj);
-				totalDistance += distance;
 				
 			}
+			inClientFile.close();
+			/* if the map is empty after the input loop, report that to
+			* the user and remind them to check that the file contains valid data in
+			* the correct format.*/
+			
 			if (vectorObj.empty())
 			{
 				std::cout << "The map is empty. Check that the file contains valid data in the correct format\n";
@@ -109,6 +131,11 @@ int main()
 				std::cout << tempObj.second->ToString() << std::endl;
 
 			}
+
+
+
+
+
 			
 			//Reports totals to user
 			std::cout << "The map contains a total of " << count << " points for a total distance of "
@@ -131,28 +158,38 @@ int main()
 			std::cout << "Enter the label of the point you wish to go to ('quit' to end): ";
 			std::cin >> userInput;
 
-			auto it = vectorObj.find(userInput);
-
+			auto it= vectorObj.find(userInput);
+			//it->second;
+			
 			// If userInput is found in the map
 			if (it != vectorObj.end())
 			{
-				// Calculates distance between AA and userInput
-				auto distance = vectorObj.begin();
+			
+			
+			
+				auto it = vectorObj[userInput];
+				auto* userTemp = new Vector2D<float>();
+				auto distance1 = Vector2D<float>::Distance(*userTemp, *it);
 
+				//Calculates distance between AA and userInput
+				int totalDistance1 = 0;
+				totalDistance1 += distance1;
+				
+				std::cout << "\tThe distance between AA(0, 0)" << " and " << userInput << " (" <<
+					it->GetX() << ", " << it->GetY() << ") is " << std::to_string(totalDistance1) << std::endl << std::endl;
 
-				std::cout << "\n\tThe distance between AA (0,0) and " << userInput << " (" << it->first << ", " <<
-					it->second << ") is " << "[DISTANCE]" << std::endl << std::endl;
 			}
-			// If userInput is not found in the map
-			else
+			
+			//If userInput is not found in the map
+			else if (userInput != "quit")
 			{
-				std::cout << "\n\tThere is no point labelled '" << userInput << "' in the map" << std::endl << std::endl;
+				std::cout << "\tThere is no point labelled '" << userInput << "' in the map" << std::endl << std::endl;
 			}
 		}
 		
 	}
 	//Closes file 
-	inClientFile.close();
+
 					
 
 
