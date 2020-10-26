@@ -12,18 +12,10 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
-
-
-
 #include "Vector2D.h"
-
-
 
 int main()
 {
-
-
-
 	try
 	{
 		/************************
@@ -31,7 +23,7 @@ int main()
 		 ************************/
 		std::map<std::string, Vector2D<float>*> vectorObj;
 		std::ifstream inClientFile;
-		const std::string fileName = "MockDataForTesting.txt";
+		std::string fileName = "PointData.dat";
 		std::string userInput;
 
 
@@ -47,27 +39,24 @@ int main()
 		 *	map is not empty.
 		 ******************************************************************************/
 
-		 //Opens file
+		int count = 0;
+		std::string key;
+		float x = 0;
+		float y = 0;
+		float totalDistance = 0;
 		inClientFile.open(fileName.c_str());
 
-		// If file doesn't open, display error message
+		//If the data file did not open, tell the user and remind them to check that the file exists.
 		if (!inClientFile.is_open())
 		{
 			std::cerr << "File could not be opened for input. Please check if the file exists.\n";
 			std::cout << "---------------------------------\n";
 		}
-		else if (fileName.empty())
-		{
-			std::cout << "The map is empty. Check that the file contains valid data in the correct format\n";
-		}
+		//If the file opened then
 		else
 		{
 
-			int count = -1; // IT IS COUNTING ONE EXTRA POINT. NOT RECOGNIZING WHEN FILE IS EMPTY.
-			std::string key;
-			int x, y;
-
-			// Reads every line of file until the end
+			//Attempts to open the data file. If the data file opens, reads a label, followed by a point
 			while (!inClientFile.fail())
 			{
 
@@ -79,47 +68,52 @@ int main()
 				inClientFile.ignore(1, ' ');
 				inClientFile >> y;
 				inClientFile.ignore(1, ')');
-
 				count++;
-			}
 
-			// SORT ALL POINTS
+				/* if the map is empty after the input loop, report that to
+				* the user and remind them to check that the file contains valid data in
+				* the correct format.*/
+				auto* tempObj = new Vector2D<float>(x, y);
 
-			// WHERE DOES THROW FOR EXCEPTION GO?
+				//Inserts points into the map using the label as the key.
+				vectorObj[key] = tempObj;
 
-			/******************************************************************************
-			 *	Determine the Total Distance Between All Points in Order:
-			 *	Use an iterator and a loop to traverse each label/point in the map. For
-			 *	each label/point, determine the distance from that point to the previous
-			 *	point (or next point depending on how you implement this) and add that
-			 *	distance to a total.  Note that the Vector2D class includes a static
-			 *	distance function to determine the distance between two Vector2D
-			 *	objects, so you should not need to use any complicated math here.  Report
-			 *	to the user how many points the map contains and what the total distance is.
-			 ******************************************************************************/
+		/******************************************************************************
+		 *	Determine the Total Distance Between All Points in Order:
+		 *	Use an iterator and a loop to traverse each label/point in the map. For
+		 *	each label/point, determine the distance from that point to the previous
+		 *	point (or next point depending on how you implement this) and add that
+		 *	distance to a total.  Note that the Vector2D class includes a static
+		 *	distance function to determine the distance between two Vector2D
+		 *	objects, so you should not need to use any complicated math here.  Report
+		 *	to the user how many points the map contains and what the total distance is.
+		 ******************************************************************************/
+				auto* tempObj1 = new Vector2D<float>(0, 0);
 
-			auto* temp_object1 = new Vector2D<float>;
-			auto* temp_object2 = new Vector2D<float>(x, y);
+				
 
-			auto distance = Vector2D<float>::Distance(*temp_object1, *temp_object2);
-
-			float totalDistance = 0;
-
-			//auto distance = vectorObj.begin();
-
-			// Calculate the total distance between and points
-			while (!inClientFile.fail())
-			{
-				// HOW CAN WE CALL THE FIRST AND SECOND POINTS, CALCULATE THE DISTANCE AND MOVE TO THE FOLLOWING LINES AFTER THAT?
-
-
+				auto distance = Vector2D<float>::Distance( *tempObj1, * tempObj);
 				totalDistance += distance;
+				
+			}
+			if (vectorObj.empty())
+			{
+				std::cout << "The map is empty. Check that the file contains valid data in the correct format\n";
 			}
 
-			// Displays totals
+			//Reports to the user all points
+			for (auto tempObj : vectorObj)
+			{
+	
+				std::cout << tempObj.first;
+				std::cout << tempObj.second->ToString() << std::endl;
+
+			}
+			
+			//Reports totals to user
 			std::cout << "The map contains a total of " << count << " points for a total distance of "
 				<< std::to_string(totalDistance) << std::endl << std::endl;
-		}
+
 
 		/******************************************************************************
 		 *	Determine the Distance Between the Start Point and a User Selected Point:
@@ -155,9 +149,12 @@ int main()
 				std::cout << "\n\tThere is no point labelled '" << userInput << "' in the map" << std::endl << std::endl;
 			}
 		}
+		
+	}
+	//Closes file 
+	inClientFile.close();
+					
 
-		// Closes file
-		inClientFile.close();
 
 	}
 	/******************************************************************************
@@ -167,7 +164,7 @@ int main()
 	 ******************************************************************************/
 	catch (std::runtime_error& error)  // an exception was thrown
 	{
-		std::cerr << "\nAn error occurred at run time: map::at" << std::endl;
+		std::cerr << "\nAn error occurred at run time: map::at" << error.what() << std::endl;
 		//return false;
 	}
 
